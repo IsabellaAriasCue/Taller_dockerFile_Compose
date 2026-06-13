@@ -57,8 +57,6 @@ def eliminar_videojuego(id: int):
 
     return {"mensaje": "Eliminado"}
 
-# Endpoint adicional (Parte 5)
-
 @app.get("/videojuegos/{id}")
 def obtener_videojuego(id: int):
 
@@ -73,5 +71,25 @@ def obtener_videojuego(id: int):
             status_code=404,
             detail="No encontrado"
         )
+
+    return juego
+
+@app.put("/videojuegos/{id}/descuento")
+def aplicar_descuento(id: int, porcentaje: float):
+
+    db: Session = SessionLocal()
+
+    juego = db.query(Videojuego).filter(Videojuego.id == id).first()
+
+    if not juego:
+        raise HTTPException(status_code=404, detail="No encontrado")
+
+    if porcentaje <= 0 or porcentaje > 100:
+        raise HTTPException(status_code=400, detail="Porcentaje inválido")
+
+    juego.precio = juego.precio - (juego.precio * (porcentaje / 100))
+
+    db.commit()
+    db.refresh(juego)
 
     return juego

@@ -46,3 +46,21 @@ def test_buscar_videojuego():
     )
 
     assert response.status_code == 200
+
+def test_aplicar_descuento():
+
+    crear = client.post("/videojuegos", json={
+        "nombre": "Elden Ring",
+        "genero": "RPG",
+        "precio": 100000
+    })
+
+    juego_id = crear.json()["id"]
+
+    response = client.put(
+        f"/videojuegos/{juego_id}/descuento",
+        params={"porcentaje": 10}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["precio"] == 90000
