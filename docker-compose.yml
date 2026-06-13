@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:16
+    image: postgres:15 #Modifique esto porque no sabía que ya contaba con la Version 15
 
     environment:
       POSTGRES_USER: admin
@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: videojuegos
 
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -25,7 +25,7 @@ services:
     build: .
 
     ports:
-      - "8000:8000"
+      - "8001:8000"
 
     environment:
       DB_HOST: db
