@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-BASE_URL = "http://localhost:8001"
+BASE_URL = "http://localhost:8000"
 
 
 @pytest.fixture
