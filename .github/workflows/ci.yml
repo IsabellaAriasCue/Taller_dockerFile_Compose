@@ -1,0 +1,49 @@
+name: Pipeline de Integracion Continua (CI)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargar codigo fuente
+      uses: actions/checkout@v4
+
+    - name: Instalar uv (Gestor de dependencias)
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+
+    - name: Configurar Python
+      run: uv python install 3.12
+
+    - name: Instalar dependencias del proyecto
+      run: |
+        uv venv
+        uv pip install -r requirements.txt
+        uv pip install testcontainers psycopg2-binary httpx python-dotenv pytest-asyncio pytest
+
+    - name: Configurar variables de entorno (.env)
+      run: |
+        echo "DB_USER=admin" > .env
+        echo "DB_PASSWORD=admin123" >> .env
+        echo "DB_HOST=localhost" >> .env
+        echo "DB_PORT=5433" >> .env
+        echo "DB_NAME=videojuegos" >> .env
+
+    - name: Ejecutar Pruebas de Integracion (TestContainers)
+      run: uv run pytest tests/integration/ -v
+
+    - name: Levantar Infraestructura Docker Compose
+      run: docker compose up --build -d
+
+    - name: Esperar a que la API este lista
+      run: sleep 10
+
+    - name: Ejecutar Pruebas de Sistema (HTTPX)
+      run: uv run pytest tests/system/ -v
